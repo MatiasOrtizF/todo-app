@@ -1,7 +1,4 @@
-import { ScrollView, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
-import { StyleSheet, Text, View , Image, ImageBackground, TextInput} from 'react-native';
-import Cross from '../images/icon-cross.svg';
-import Check from '../images/icon-check.svg';
+import { ScrollView, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, Text, View, Image, ImageBackground, TextInput } from 'react-native';
 import { useState } from 'react';
 
 export default function Main () {
@@ -12,11 +9,11 @@ export default function Main () {
 
     const result = () => {
         if(input.trim()) {
-            const hola = {
-                tarea: input,
+            const todo = {
+                task: input,
                 completed: false,
             }
-            const newAll = [hola, ...all];
+            const newAll = [todo, ...all];
             setAll(newAll);
             setAllFilter(newAll);
         }
@@ -29,7 +26,7 @@ export default function Main () {
         setAll(newAll);
     }
 
-    const borrar = (index) => {
+    const deleteTodo = (index) => {
         const newAll = [...all];
         newAll.splice(index,1);
         setAll(newAll);
@@ -39,31 +36,28 @@ export default function Main () {
     const filterAll = () => {
         const newAll = [...all];
         setAllFilter(newAll);
-        console.log("mostrar todos")
     }
 
     const filterActive = () => {
         const newAll = [...all];
         const newActive = [];
-        newAll.forEach(tarea => {
-            if(!tarea.completed) {
-                newActive.push(tarea);
+        newAll.forEach(task => {
+            if(!task.completed) {
+                newActive.push(task);
             }
             setAllFilter(newActive);
         })
-        console.log("mostrar activados");
     }
 
     const filterCompleted = () => {
         const newAll = [...all];
         const newActive = [];
-        newAll.forEach(tarea => {
-            if(tarea.completed) {
-                newActive.push(tarea);
+        newAll.forEach(task => {
+            if(task.completed) {
+                newActive.push(task);
             }
             setAllFilter(newActive);
         })
-        console.log("mostrar completados");
     }
 
     const clearCompleted = () => {
@@ -79,87 +73,51 @@ export default function Main () {
         <View style={styles.container}>
             <ScrollView>
                 <View style={styles.bg}>
-                    <ImageBackground source={require('../images/bg-mobile-light.jpg')}
-                                    style={{width: "100%", height: "107%"}} 
-                    >
+                    <ImageBackground style={{width: "100%", height: "107%"}} source={require('../images/bg-image.jpg')}>
                     <View style={styles.header}>
                         <Text style={styles.headerText}>TODO</Text>
                             <TextInput onChangeText={setInput} 
                                 style={styles.headerInput} 
                                 placeholder="Create a new todo..."
                                 onSubmitEditing={result}
-                                >
-                            </TextInput>
+                            />
                     </View>
                     </ImageBackground>
                 </View>
                 <View style={styles.todo} >
-
                     <View style={styles.lists}>
-
-                        {/* <View style={styles.list}>
-                            <View style={{flexDirection:"row" , flex:0.95 , marginRight:"5%"}}>
-                                <Image source={require('../images/circle.png')}
-                                            style={{width: 20, height: 20 , marginRight:5}} 
-                                />
-                                <Text>
-                                    10 minutes meditation
-                                </Text>
+                        {allFilter.length===0?
+                            <View style={styles.listEmpty}>
+                                <Text style={{fontSize:17 , fontWeight:'bold' , color:"#242424"}}>Your list is empty</Text>
                             </View>
-                            <View style={{flex:0.05}}>
-                                <Image source={require('../images/cross.png')}
-                                            style={{width: 20, height: 20}} 
-                                />
-                            </View>
-                        </View>
-                        <View style={styles.list}>
-                            <View style={{flexDirection:"row" , flex:0.95 , marginRight:"5%"}}>
-                                <Image source={require('../images/check.png')}
-                                            style={{width: 20, height: 20 , marginRight:5}} 
-                                />
-                                <Text>
-                                    10 minutes meditation
-                                </Text>
-                            </View>
-                            <View style={{flex:0.05}}>
-                                <Image source={require('../images/cross.png')}
-                                            style={{width: 20, height: 20}} 
-                                />
-                            </View>
-                        </View> */}
-                        
-                        {allFilter.length==0?
-                        <View style={styles.listEmpty}>
-                            <Text style={{fontSize:17 , fontWeight:'bold' , color:"#242424"}}>Your list is empty</Text>
-                        </View>
                         :
-                        allFilter.map((tarea , index) =>
-                            <View style={styles.list}>
-                                <View style={{flexDirection:"row" , flex:0.95 , marginRight:"5%"}}>
-                                    <TouchableOpacity onPress={()=> complet(index)}>
-                                        {tarea.completed ? 
-                                            <Image source={require('../images/check.png')}
-                                                style={{width: 20, height: 20 , marginRight:5}} 
+                            allFilter.map((todo , index) =>
+                                <View key={index} style={styles.list}>
+                                    <View style={{flexDirection:"row" , flex:0.95 , marginRight:"5%"}}>
+                                        <TouchableOpacity onPress={()=> complet(index)}>
+                                            {todo.completed ? 
+                                                <Image source={require('../images/check.png')}
+                                                    style={{width: 20, height: 20 , marginRight:5}} 
                                                 />
-                                            :
-                                            <Image source={require('../images/circle.png')}
-                                            style={{width: 20, height: 20 , marginRight:5}} 
+                                                :
+                                                <Image source={require('../images/circle.png')}
+                                                    style={{width: 20, height: 20 , marginRight:5}} 
+                                                />
+                                            }
+                                        </TouchableOpacity>
+                                        <Text style={todo.completed && styles.complet}>
+                                            {todo.task}
+                                        </Text>
+                                    </View>
+                                    <View style={{flex:0.05}}>
+                                        <TouchableOpacity onPress={()=> deleteTodo(index)}>
+                                            <Image source={require('../images/cross.png')}
+                                                style={{width: 20, height: 20}} 
                                             />
-                                        }
-                                    </TouchableOpacity>
-                                    <Text style={tarea.completed && styles.tachar}>
-                                        {tarea.tarea}
-                                    </Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
-                                <View style={{flex:0.05}}>
-                                    <TouchableOpacity onPress={()=> borrar(index)}>
-                                        <Image source={require('../images/cross.png')}
-                                            style={{width: 20, height: 20}} 
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        )
+                            )
                         }
                         <View style={styles.list}>
                             <TouchableWithoutFeedback>
@@ -170,7 +128,6 @@ export default function Main () {
                             </TouchableWithoutFeedback>
                         </View>
                     </View>
-
                     <View style={styles.btns}>
                         <TouchableWithoutFeedback onPress={filterAll} >
                             <Text style={{marginHorizontal: 10 , fontWeight: 'bold' , color:"#5b6e7d"}}>All</Text>
@@ -182,9 +139,6 @@ export default function Main () {
                             <Text style={{marginHorizontal: 10 , fontWeight: 'bold' , color:"#5b6e7d"}}>Completed</Text>
                         </TouchableWithoutFeedback>
                     </View>
-                </View>
-                <View style={{flex:0.2 , alignItems:"center" , marginVertical:"5%"}}>
-                        <Text style={{color:"#5b6e7d"}}>Drag and drop to reorder list</Text>
                 </View>
             </ScrollView>
         </View>
@@ -243,9 +197,6 @@ const styles = StyleSheet.create({
         marginBottom: 1,
         justifyContent:'center'
     },
-    emptyText: {
-
-    },
     check: {
         flex:0.1, 
         padding: 1,
@@ -255,11 +206,8 @@ const styles = StyleSheet.create({
         alignItems:"center",
         borderRadius: "100%"
     },
-    tachar: {
+    complet: {
         textDecorationLine: 'line-through'
-    },
-    listText: {
-
     },
     btns: {
         flexDirection: "row",
