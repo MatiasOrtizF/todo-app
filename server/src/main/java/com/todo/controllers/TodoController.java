@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@CrossOrigin(origins = {"http://localhost:19006/", "192.168.0.9:8081"})
 @RestController
 public class TodoController {
     @Autowired
@@ -34,11 +35,11 @@ public class TodoController {
     }
 
     @PutMapping("/api/todo/{id}")
-    public ResponseEntity<Todo> updateTodo(@PathVariable Long id,@RequestBody Todo todoRequest) {
+    public ResponseEntity<Todo> updateTodo(@PathVariable Long id) {
         Todo todo = todoRepository.findById(id)
                 .orElseThrow(()-> new ResourceNotFoundExpection("The user with this id:" + id + "is incorrect"));
 
-        todo.setTask(todoRequest.getTask());
+        todo.setCompleted(!todo.getCompleted());
 
         Todo todoUpdated = todoRepository.save(todo);
         return ResponseEntity.ok(todoUpdated);

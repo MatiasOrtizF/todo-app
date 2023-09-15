@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@CrossOrigin(origins = {"http://localhost:19006/", "192.168.0.9:8081"})
 @RestController
 public class TodoSharedController {
     @Autowired
