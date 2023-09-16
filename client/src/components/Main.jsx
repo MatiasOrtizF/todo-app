@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import styles from './Styles';
 import Filter from './Filter';
 import TodoService from '../service/TodoService';
+import { StatusBar } from 'expo-status-bar';
 
 export default function Main () {
 
@@ -118,6 +119,7 @@ export default function Main () {
 
     return(
         <View style={styles.container}>
+            <StatusBar style="light"/>
             <ScrollView>
                 <View style={styles.bg}>
                     <ImageBackground style={{width: "100%", height: "107%"}} source={require('../images/bg-image.jpg')}>

@@ -70,6 +70,12 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         padding: 12,
         borderRadius: 7,
+    },
+    /*Login*/
+    loginContainer: {
+        flex:1,
+        justifyContent: "center",
+        padding: 35
     }
 });
 

@@ -18,8 +18,8 @@ export default function Filter ({changeFilter}) {
     return(
         //onPress={}
         <View style={styles.btns}>
-            {filters.map((filter)=> (
-            <TouchableWithoutFeedback>
+            {filters.map((filter, index)=> (
+            <TouchableWithoutFeedback key={index}>
                 <Text style={{marginHorizontal: 10 , fontWeight: 'bold' , color:"#5b6e7d"}}>{filter.name}</Text>
             </TouchableWithoutFeedback>
             ))}
