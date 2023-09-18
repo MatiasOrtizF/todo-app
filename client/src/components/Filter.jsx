@@ -3,10 +3,8 @@ import styles from './Styles';
 
 export default function Filter ({changeFilter}) {
 
-    const filter = () => {
-        changeFilter(prevState=> ({
-            ...prevState,
-        }))
+    const handleCompleted = (value) => {
+        changeFilter(value)
     }
 
     const filters = [
@@ -19,7 +17,7 @@ export default function Filter ({changeFilter}) {
         //onPress={}
         <View style={styles.btns}>
             {filters.map((filter, index)=> (
-            <TouchableWithoutFeedback key={index}>
+            <TouchableWithoutFeedback onPress={()=> handleCompleted(filter.value)} key={index}>
                 <Text style={{marginHorizontal: 10 , fontWeight: 'bold' , color:"#5b6e7d"}}>{filter.name}</Text>
             </TouchableWithoutFeedback>
             ))}

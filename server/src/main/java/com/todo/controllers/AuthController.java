@@ -25,8 +25,8 @@ public class AuthController {
     @Autowired
     private JWTUtil jwtUtil;
 
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody User user) {
+    @PostMapping("api/login")
+    public ResponseEntity<?> login(@RequestBody User user) {
         List<User> list = userRepository.findByEmail(user.getEmail());
 
         if(!list.isEmpty()) {
@@ -44,6 +44,6 @@ public class AuthController {
                 return ResponseEntity.ok(response);
             }
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return ResponseEntity.badRequest().body("Email or password is incorrect");
     }
 }

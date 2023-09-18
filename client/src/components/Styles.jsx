@@ -3,11 +3,14 @@ import { StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#d4dce6",
         width: "100%",
     },
     bg: {
         flex: 0.3
+    },
+    img: {
+        width: 20, 
+        height: 20
     },
     header: {
         flex: 1,
@@ -51,6 +54,11 @@ const styles = StyleSheet.create({
         backgroundColor: "white",
         marginBottom: 1,
         justifyContent:'center'
+    },
+    listEmptyText: {
+        fontSize:17, 
+        fontWeight:'bold', 
+        color:"#242424"
     },
     check: {
         flex:0.1, 

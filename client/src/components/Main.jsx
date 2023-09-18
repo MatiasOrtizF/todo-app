@@ -1,17 +1,16 @@
-import { ScrollView, TouchableOpacity, TouchableWithoutFeedback, Text, View, Image, ImageBackground, TextInput, Alert } from 'react-native';
-import { useEffect, useState } from 'react';
+import { ScrollView, TouchableOpacity, TouchableWithoutFeedback, Text, View, ImageBackground, TextInput, Alert, BackHandler } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './Styles';
 import Filter from './Filter';
 import TodoService from '../service/TodoService';
 import { StatusBar } from 'expo-status-bar';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import Modal from './Modal';
+import Todo from '../components/Todo'
 
 export default function Main () {
-
-    const [all , setAll] = useState([]);
-    const [input, setInput] = useState("");
-    const [allFilter, setAllFilter] = useState([]);
-    const [filter, setFilter] = useState("");
-    const [todo, setTodo] = useState([]);
+    const [filter, setFilter] = useState("all");
+    const [todos, setTodos] = useState([]);
     const [dataTodo, setDataTodo] = useState({
         task: "",
         completed: false,
@@ -19,64 +18,56 @@ export default function Main () {
             id: 1
         }
     })
+    const [todoModal, setTodoModal] = useState([]);
+    const sheetRef = useRef(null);
+    const [isOpen, setIsOpen] = useState(false);
+    const snapPoints = ["40%"];
+
+    const handleSnapPress = useCallback((index, todo) => {
+        sheetRef.current?.snapToIndex(index);
+        setIsOpen(true);
+        setTodoModal(todo);
+    }, []);
 
 
     useEffect(()=> {
-        listTodo();
+        blockBack();
+        listTodos();
+        return () => {
+            //deslogear
+            //cleanup();
+        }
     },[])
 
-    const listTodo = () => {
+    const blockBack = () => {
+        const backAction = () => {
+            BackHandler.exitApp();
+            return true;
+        };
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+        return () => backHandler.remove();
+    }
+
+    const listTodos = () => {
         TodoService.getAllTodo().then(response=> {
-            setTodo(response.data);
+            setTodos(response.data);
         }).catch(error=> {
             console.log(error);
         })
     }
 
-    /*const filterAll = () => {
-        const newAll = [...all];
-        setAllFilter(newAll);
-    }
-
-    const filterActive = () => {
-        const newAll = [...all];
-        const newActive = [];
-        newAll.forEach(task => {
-            if(!task.completed) {
-                newActive.push(task);
-            }
-            setAllFilter(newActive);
-        })
-    }
-
-    const filterCompleted = () => {
-        const newAll = [...all];
-        const newActive = [];
-        newAll.forEach(task => {
-            if(task.completed) {
-                newActive.push(task);
-            }
-            setAllFilter(newActive);
-        })
-    }*/
-
-    const filtersTodo = (todo) => {
-        return todo.filter(todo=> {
+    const filtersTodos = (todos) => {
+        return todos.filter(todo=> {
             return(
-                todo.completed === filter
+                filter === "all" || todo.completed == filter
             )
         })
     }
 
-    const filteredTodo = filtersTodo(todo);
+    const filteredTodo = filtersTodos(todos);
 
     const clearCompleted = () => {
-        const newAll = [...all];
-        const hola = newAll.filter(function(num) {
-            return num.completed==false;
-        })
-        setAll(hola);
-        setAllFilter(hola);
+        console.log("clear complete")
     }
 
     const deleteTodo = (todoId) => {
@@ -86,7 +77,7 @@ export default function Main () {
                 text: 'yes',
                 onPress: ()=> {
                     TodoService.deleteTodo(todoId).then(response=> {
-                        listTodo();
+                        listTodos();
                     }).catch(error=> {
                         console.log(error);
                     })
@@ -101,7 +92,7 @@ export default function Main () {
 
     const complet = (todoId) => {
         TodoService.updateTodo(todoId).then(response=> {
-            listTodo();
+            listTodos();
         }).catch(error=> {
             console.log(error);
         })
@@ -110,7 +101,7 @@ export default function Main () {
     const addTodo = () => {
         if(dataTodo.task.trim()) {
             TodoService.addTodo(dataTodo).then(response=> {
-                listTodo();
+                listTodos();
             }).catch(error=> {
                 console.log(error)
             })
@@ -124,7 +115,12 @@ export default function Main () {
                 <View style={styles.bg}>
                     <ImageBackground style={{width: "100%", height: "107%"}} source={require('../images/bg-image.jpg')}>
                     <View style={styles.header}>
-                        <Text style={styles.headerText}>TODO</Text>
+                        <View style={{flexDirection:"row", justifyContent: "space-between", alignItems: "center"}}>
+                            <Text style={styles.headerText}>TODO</Text>
+                            <TouchableOpacity style={{backgroundColor: "#000", paddingVertical: 5, paddingHorizontal: 10 , borderRadius: 7}}>
+                                <Text style={{color: "#fff", fontSize: 17, fontWeight: "bold"}}>Log Out</Text>
+                            </TouchableOpacity>
+                        </View>
                         <TextInput 
                             onChangeText={(value)=> handleChangeText('task', value)} 
                             style={styles.headerInput} 
@@ -136,43 +132,18 @@ export default function Main () {
                 </View>
                 <View style={styles.todo} >
                     <View style={styles.lists}>
-                        {todo.length===0?
+                        {todos.length===0?
                             <View style={styles.listEmpty}>
-                                <Text style={{fontSize:17 , fontWeight:'bold' , color:"#242424"}}>Your list is empty</Text>
+                                <Text style={styles.listEmptyText}>Your list is empty</Text>
                             </View>
                         :
-                            todo.map((todo , index) =>
-                                <View key={index} style={styles.list}>
-                                    <View style={{flexDirection:"row" , flex:0.95 , marginRight:"5%"}}>
-                                        <TouchableOpacity onPress={()=> complet(todo.id)}>
-                                            {todo.completed ? 
-                                                <Image source={require('../images/check.png')}
-                                                    style={{width: 20, height: 20 , marginRight:5}} 
-                                                />
-                                                :
-                                                <Image source={require('../images/circle.png')}
-                                                    style={{width: 20, height: 20 , marginRight:5}} 
-                                                />
-                                            }
-                                        </TouchableOpacity>
-                                        <Text style={todo.completed && styles.complet}>
-                                            {todo.task}
-                                        </Text>
-                                    </View>
-                                    <View style={{flex:0.05}}>
-                                        {/* agregar una alerta para eliminar */}
-                                        <TouchableOpacity onPress={()=> deleteTodo(todo.id)}>
-                                            <Image source={require('../images/cross.png')}
-                                                style={{width: 20, height: 20}} 
-                                            />
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-                            )
+                            filteredTodo?.map((todo, index)=> (
+                                <Todo key={index} todo={todo} deleteTodo={deleteTodo} handleSnapPress={handleSnapPress} complet={complet} />
+                            ))
                         }
                         <View style={styles.list}>
                             <TouchableWithoutFeedback>
-                                <Text style={{color:"#5b6e7d"}}>{todo.length} items left</Text>
+                                <Text style={{color:"#5b6e7d"}}>{todos.length} items left</Text>
                             </TouchableWithoutFeedback>
                                     {/* agregar una alerta para eliminar todos */}
                             <TouchableWithoutFeedback onPress={clearCompleted}>
@@ -180,9 +151,20 @@ export default function Main () {
                             </TouchableWithoutFeedback>
                         </View>
                     </View>
-                    <Filter changeFiltes={setFilter}/>
+                    <Filter changeFilter={setFilter}/>
                 </View>
             </ScrollView>
+            <BottomSheet
+                ref={sheetRef}
+                snapPoints={snapPoints}
+                enablePanDownToClose={true}
+                onClose={()=> setIsOpen(false)}
+                backgroundStyle={{ borderRadius: 50, borderWidth: 4 }}
+            >
+                <BottomSheetView>
+                    <Modal todoModal={todoModal}/>
+                </BottomSheetView>
+            </BottomSheet>
         </View>
     )
 }
