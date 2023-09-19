@@ -1,15 +1,25 @@
-import { ScrollView, TouchableOpacity, TouchableWithoutFeedback, Text, View, Image, ImageBackground, TextInput, Alert, BackHandler } from 'react-native';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { TouchableOpacity, Text, View, Image } from 'react-native';
+import { useRef } from 'react';
 import styles from './Styles';
-import Filter from './Filter';
-import TodoService from '../service/TodoService';
-import { StatusBar } from 'expo-status-bar';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import Modal from './Modal';
-import { FlatList } from 'react-native-gesture-handler';
 
 export default function Todo ({ todo, deleteTodo, handleSnapPress, complet }) {
+    const bottomSheetModalRef = useRef(null);
+    const sharedBottomSheetRef = useRef(null);
+    const snapPoints = ["25%", "48%", "75%"];
+    const snapPointsShared = ["40%"];
+
+    function handlePresentModal() {
+        bottomSheetModalRef.current?.present();
+    }
+
+    function handlePresentShared() {
+        sharedBottomSheetRef.current?.present();
+    }
+
     return(
+        <>
             <View style={styles.list}>
                 <View style={{flexDirection:"row" , flex:0.85 , marginRight:"5%"}}>
                     <TouchableOpacity onPress={()=> complet(todo.id)}>
@@ -29,7 +39,8 @@ export default function Todo ({ todo, deleteTodo, handleSnapPress, complet }) {
                 </View>
                 <View style={{flex:0.15, flexDirection: "row"}}>
                     {/* agregar una alerta para eliminar */}
-                    <TouchableOpacity onPress={()=> handleSnapPress(0, todo)}>
+                    {/* <TouchableOpacity onPress={()=> handleSnapPress(0, todo)}> */}
+                    <TouchableOpacity onPress={handlePresentModal}>
                         <Image source={require('../images/add-user.png')}
                             style={styles.img}
                         />
@@ -41,5 +52,14 @@ export default function Todo ({ todo, deleteTodo, handleSnapPress, complet }) {
                     </TouchableOpacity>
                 </View>
             </View>
+            <BottomSheetModal
+                ref={bottomSheetModalRef}
+                index={2}
+                snapPoints={snapPoints}
+                backgroundStyle={{ borderRadius: 50, borderWidth: 4 }}
+            >
+                <Modal todo={todo}/>
+            </BottomSheetModal>
+            </>
     )
 }

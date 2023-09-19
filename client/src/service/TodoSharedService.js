@@ -18,6 +18,9 @@ class TodoSharedService {
     deleteTodoShared(todoId, todoData) {
         return axios.delete(TODO_BASE + "/" + todoId, todoData)
     }
+    getTodoInShared(todoId) {
+        return axios.get("http://192.168.0.9:8080/api/todo_in_shared" + "/" + todoId)
+    }
 }
 
 export default new TodoSharedService;

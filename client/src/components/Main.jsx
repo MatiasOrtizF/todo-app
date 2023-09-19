@@ -5,6 +5,7 @@ import Filter from './Filter';
 import TodoService from '../service/TodoService';
 import { StatusBar } from 'expo-status-bar';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import Modal from './Modal';
 import Todo from '../components/Todo'
 
@@ -20,12 +21,12 @@ export default function Main () {
     })
     const [todoModal, setTodoModal] = useState([]);
     const sheetRef = useRef(null);
-    const [isOpen, setIsOpen] = useState(false);
+    // const [isOpen, setIsOpen] = useState(false);
     const snapPoints = ["40%"];
 
     const handleSnapPress = useCallback((index, todo) => {
         sheetRef.current?.snapToIndex(index);
-        setIsOpen(true);
+        // setIsOpen(true);
         setTodoModal(todo);
     }, []);
 
@@ -109,62 +110,64 @@ export default function Main () {
     }
 
     return(
-        <View style={styles.container}>
-            <StatusBar style="light"/>
-            <ScrollView>
-                <View style={styles.bg}>
-                    <ImageBackground style={{width: "100%", height: "107%"}} source={require('../images/bg-image.jpg')}>
-                    <View style={styles.header}>
-                        <View style={{flexDirection:"row", justifyContent: "space-between", alignItems: "center"}}>
-                            <Text style={styles.headerText}>TODO</Text>
-                            <TouchableOpacity style={{backgroundColor: "#000", paddingVertical: 5, paddingHorizontal: 10 , borderRadius: 7}}>
-                                <Text style={{color: "#fff", fontSize: 17, fontWeight: "bold"}}>Log Out</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <TextInput 
-                            onChangeText={(value)=> handleChangeText('task', value)} 
-                            style={styles.headerInput} 
-                            placeholder="Create a new todo..."
-                            onSubmitEditing={addTodo}
-                        />
-                    </View>
-                    </ImageBackground>
-                </View>
-                <View style={styles.todo} >
-                    <View style={styles.lists}>
-                        {todos.length===0?
-                            <View style={styles.listEmpty}>
-                                <Text style={styles.listEmptyText}>Your list is empty</Text>
+        <BottomSheetModalProvider>
+            <View style={styles.container}>
+                <StatusBar style="light"/>
+                <ScrollView>
+                    <View style={styles.bg}>
+                        <ImageBackground style={{width: "100%", height: "107%"}} source={require('../images/bg-image.jpg')}>
+                        <View style={styles.header}>
+                            <View style={{flexDirection:"row", justifyContent: "space-between", alignItems: "center"}}>
+                                <Text style={styles.headerText}>TODO</Text>
+                                <TouchableOpacity style={{backgroundColor: "#000", paddingVertical: 5, paddingHorizontal: 10 , borderRadius: 7}}>
+                                    <Text style={{color: "#fff", fontSize: 17, fontWeight: "bold"}}>Log Out</Text>
+                                </TouchableOpacity>
                             </View>
-                        :
-                            filteredTodo?.map((todo, index)=> (
-                                <Todo key={index} todo={todo} deleteTodo={deleteTodo} handleSnapPress={handleSnapPress} complet={complet} />
-                            ))
-                        }
-                        <View style={styles.list}>
-                            <TouchableWithoutFeedback>
-                                <Text style={{color:"#5b6e7d"}}>{todos.length} items left</Text>
-                            </TouchableWithoutFeedback>
-                                    {/* agregar una alerta para eliminar todos */}
-                            <TouchableWithoutFeedback onPress={clearCompleted}>
-                                <Text style={{color:"#5b6e7d"}} >Clear Completed</Text>
-                            </TouchableWithoutFeedback>
+                            <TextInput 
+                                onChangeText={(value)=> handleChangeText('task', value)} 
+                                style={styles.headerInput} 
+                                placeholder="Create a new todo..."
+                                onSubmitEditing={addTodo}
+                            />
                         </View>
+                        </ImageBackground>
                     </View>
-                    <Filter changeFilter={setFilter}/>
-                </View>
-            </ScrollView>
-            <BottomSheet
-                ref={sheetRef}
-                snapPoints={snapPoints}
-                enablePanDownToClose={true}
-                onClose={()=> setIsOpen(false)}
-                backgroundStyle={{ borderRadius: 50, borderWidth: 4 }}
-            >
-                <BottomSheetView>
-                    <Modal todoModal={todoModal}/>
-                </BottomSheetView>
-            </BottomSheet>
-        </View>
+                    <View style={styles.todo} >
+                        <View style={styles.lists}>
+                            {todos.length===0?
+                                <View style={styles.listEmpty}>
+                                    <Text style={styles.listEmptyText}>Your list is empty</Text>
+                                </View>
+                            :
+                                filteredTodo?.map((todo, index)=> (
+                                    <Todo key={index} todo={todo} deleteTodo={deleteTodo} handleSnapPress={handleSnapPress} complet={complet} />
+                                ))
+                            }
+                            <View style={styles.list}>
+                                <TouchableWithoutFeedback>
+                                    <Text style={{color:"#5b6e7d"}}>{todos.length} items left</Text>
+                                </TouchableWithoutFeedback>
+                                        {/* agregar una alerta para eliminar todos */}
+                                <TouchableWithoutFeedback onPress={clearCompleted}>
+                                    <Text style={{color:"#5b6e7d"}} >Clear Completed</Text>
+                                </TouchableWithoutFeedback>
+                            </View>
+                        </View>
+                        <Filter changeFilter={setFilter}/>
+                    </View>
+                </ScrollView>
+                {/* <BottomSheet
+                    ref={sheetRef}
+                    snapPoints={snapPoints}
+                    enablePanDownToClose={true}
+                    // onClose={()=> setIsOpen(false)}
+                    backgroundStyle={{ borderRadius: 50, borderWidth: 4 }}
+                >
+                    <BottomSheetView>
+                        <Modal todoModal={todoModal}/>
+                    </BottomSheetView>
+                </BottomSheet> */}
+            </View>
+        </BottomSheetModalProvider>
     )
 }

@@ -2,6 +2,7 @@ package com.todo.controllers;
 
 import com.todo.exception.ResourceNotFoundExpection;
 import com.todo.models.TodoShared;
+import com.todo.models.User;
 import com.todo.repository.TodoSharedRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,5 +44,11 @@ public class TodoSharedController {
         Map<String,Boolean> response = new HashMap<>();
         response.put("deleted",Boolean.TRUE);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("api/todo_in_shared/{todoId}")
+    public List<User> getTodoInShared (@PathVariable Long todoId) {
+        List <User> list = todoSharedRepository.findByTodoId(todoId);
+            return list;
     }
 }

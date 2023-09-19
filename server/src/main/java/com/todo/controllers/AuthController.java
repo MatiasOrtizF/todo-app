@@ -9,10 +9,7 @@ import de.mkammerer.argon2.Argon2Factory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -45,5 +42,11 @@ public class AuthController {
             }
         }
         return ResponseEntity.badRequest().body("Email or password is incorrect");
+    }
+
+    @PostMapping("api/check_user")
+    public boolean checkUser(@RequestParam("email")String email) {
+        List<User> list = userRepository.findByEmail(email);
+        return(!list.isEmpty());
     }
 }
