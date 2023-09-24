@@ -1,9 +1,8 @@
 package com.todo.controllers;
 
-import com.todo.exception.ResourceNotFoundExpection;
 import com.todo.models.TodoShared;
 import com.todo.models.User;
-import com.todo.repository.TodoSharedRepository;
+import com.todo.services.TodoSharedService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,42 +12,52 @@ import java.util.List;
 import java.util.Map;
 
 @CrossOrigin(origins = {"http://localhost:19006/", "192.168.0.9:8081"})
+@RequestMapping("/api/todo_shared")
 @RestController
 public class TodoSharedController {
+
+    private final TodoSharedService todoSharedService;
+
     @Autowired
-    private TodoSharedRepository todoSharedRepository;
-
-    @GetMapping("/api/todo_shared")
-    public List<TodoShared> getAllTodoShared() {
-        return todoSharedRepository.findAll();
+    public TodoSharedController (TodoSharedService todoSharedService) {
+        this.todoSharedService = todoSharedService;
     }
 
-    @PostMapping("/api/todo_shared")
-    public TodoShared addTodoShared(@RequestBody TodoShared todoShared) {
-        return todoSharedRepository.save(todoShared);
+
+    @PostMapping
+    public ResponseEntity<?> addTodoShared(@RequestBody TodoShared todoShared, @RequestHeader(value="Authorization")String token) {
+        TodoShared addedTodoShared = todoSharedService.addTodoShared(todoShared, token);
+        if(addedTodoShared != null) {
+            return ResponseEntity.ok(addedTodoShared);
+        }
+        return ResponseEntity.badRequest().body("Unauthorized: Invalid token");
     }
 
-    @GetMapping("/api/todo_shared/{id}")
-    public ResponseEntity<TodoShared> getTodoShared (@PathVariable Long id) {
-        TodoShared todoShared = todoSharedRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundExpection("The user with this id: " + id + " is incorrect"));
-        return ResponseEntity.ok(todoShared);
+    @GetMapping("{id}")
+    public ResponseEntity<?> getTodoShared (@PathVariable Long id, @RequestHeader(value="Authorization")String token) {
+        TodoShared todoShared = todoSharedService.getTodoShared(id, token);
+        if(todoShared != null) {
+            return ResponseEntity.ok(todoShared);
+        }
+        return ResponseEntity.badRequest().body("Unauthorized: Invalid token");
     }
 
-    @DeleteMapping("/api/todo_shared/{id}")
-    public ResponseEntity<Map<String,Boolean>> deleteTodoShared(@PathVariable Long id) {
-        TodoShared todoShared = todoSharedRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundExpection("The user with this id: " + id + " is incorrect"));
-
-        todoSharedRepository.delete(todoShared);
-        Map<String,Boolean> response = new HashMap<>();
-        response.put("deleted",Boolean.TRUE);
-        return ResponseEntity.ok(response);
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteTodoShared(@PathVariable Long id, @RequestHeader(value="Authorization")String token) {
+        boolean deleted = todoSharedService.deleteTodoShared(id, token);
+        if(deleted) {
+            Map<String,Boolean> response = new HashMap<>();
+            response.put("deleted",Boolean.TRUE);
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body("Unauthorized: Invalid token");
     }
 
-    @GetMapping("api/todo_in_shared/{todoId}")
-    public List<User> getTodoInShared (@PathVariable Long todoId) {
-        List <User> list = todoSharedRepository.findByTodoId(todoId);
-            return list;
+    @GetMapping("all/{todoId}")
+    public ResponseEntity<?> getTodoInShared (@PathVariable Long todoId, @RequestHeader(value="Authorization")String token) {
+        List<User> list = todoSharedService.getTodoInShared(todoId, token);
+        if(list != null) {
+            return ResponseEntity.ok(list);
+        } return ResponseEntity.badRequest().body("Unauthorized: Invalid token");
     }
 }

@@ -13,9 +13,6 @@ const config = {
 }
 
 class TodoSharedService {
-    getAllTodoShared() {
-        return axios.get(TODO_BASE);
-    }
     addTodoShared(todoData) {
         return axios.post(TODO_BASE, todoData, config);
     }

@@ -1,74 +1,72 @@
 package com.todo.controllers;
 
-import com.todo.exception.ResourceNotFoundExpection;
-import com.todo.models.LoginResponse;
 import com.todo.models.Todo;
-import com.todo.models.User;
-import com.todo.repository.TodoRepository;
-import com.todo.utils.JWTUtil;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import jakarta.servlet.http.HttpServletRequest;
+import com.todo.services.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://localhost:19006/", "192.168.0.9:8081"})
+@RequestMapping("/api/todo")
 @RestController
 public class TodoController {
-    @Autowired
-    private TodoRepository todoRepository;
+
+    private final TodoService todoService;
 
     @Autowired
-    private JWTUtil jwtUtil;
+    public TodoController(TodoService todoService) {
+        this.todoService = todoService;
+    }
 
-    @GetMapping("/api/todo")
+    @GetMapping
     public ResponseEntity<?> getAllTodo(@RequestHeader(value="Authorization")String token) {
-        String userId = jwtUtil.getKey(token);
-        if(userId != null) {
-            List<Todo> list = todoRepository.findByUserId(Long.valueOf(userId));
+        List<Todo> list = todoService.getAllTodo(token);
+        if(list != null) {
             return ResponseEntity.ok(list);
         }
-        return ResponseEntity.badRequest().body("Invalid token");
+        return ResponseEntity.badRequest().body("Unauthorized: Invalid token");
     }
 
-    @PostMapping("/api/todo")
-    public Todo addTodo(@RequestBody Todo todo) {
-        return todoRepository.save(todo);
+    @PostMapping
+    public ResponseEntity<?> addTodo(@RequestBody Todo todo, @RequestHeader(value="Authorization")String token) {
+        Todo addedtodo = todoService.addTodo(todo, token);
+        if(addedtodo != null) {
+            return ResponseEntity.ok(addedtodo);
+        }
+        return ResponseEntity.badRequest().body("Unauthorized: Invalid token");
     }
 
-    @GetMapping("/api/todo/{id}")
-    public ResponseEntity<Todo> getTodo(@PathVariable Long id) {
-        Todo todo = todoRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundExpection("The user with this id:" + id + "is incorrect"));
-        return ResponseEntity.ok(todo);
+    @GetMapping("{id}")
+    public ResponseEntity<?> getTodo(@PathVariable Long id, @RequestHeader(value="Authorization")String token) {
+        Todo todo = todoService.getTodo(id, token);
+        if(todo != null) {
+            return ResponseEntity.ok(todo);
+        }
+        return ResponseEntity.badRequest().body("Unauthorized: Invalid token");
     }
 
-    @PutMapping("/api/todo/{id}")
-    public ResponseEntity<Todo> updateTodo(@PathVariable Long id) {
-        Todo todo = todoRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundExpection("The user with this id:" + id + "is incorrect"));
-
-        todo.setCompleted(!todo.getCompleted());
-
-        Todo todoUpdated = todoRepository.save(todo);
-        return ResponseEntity.ok(todoUpdated);
+    @PutMapping("{id}")
+    public ResponseEntity<?> updateTodo(@PathVariable Long id, @RequestHeader(value="Authorization")String token) {
+        Todo todo = todoService.updateTodo(id, token);
+        if(todo != null) {
+            return ResponseEntity.ok(todo);
+        }
+        return ResponseEntity.badRequest().body("Unauthorized: Invalid token");
     }
 
-    @DeleteMapping("/api/todo/{id}")
-    public ResponseEntity<Map<String,Boolean>> deleteTodo(@PathVariable Long id) {
-        Todo todo = todoRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundExpection("The user with this id:" + id + "is incorrect"));
-
-        todoRepository.delete(todo);
-        Map<String,Boolean> response = new HashMap<>();
-        response.put("deleted",Boolean.TRUE);
-        return ResponseEntity.ok(response);
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteTodo(@PathVariable Long id, @RequestHeader(value="Authorization")String token) {
+        boolean deleted = todoService.deleteTodo(id, token);
+        if(deleted) {
+            Map<String,Boolean> response = new HashMap<>();
+            response.put("deleted",Boolean.TRUE);
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body("Unauthorized: Invalid token");
     }
     
 }
