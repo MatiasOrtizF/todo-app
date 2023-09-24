@@ -1,3 +1,4 @@
+import { DataProvider } from "./src/context/useData.js";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 
@@ -8,11 +9,13 @@ import Login from './src/screen/Login.jsx';
 export default function App() {
   const Stack = createStackNavigator();
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Main">
-        <Stack.Screen name="Login" component={Login} options={{headerShown:false}} />
-        <Stack.Screen name="Main" component={Main} options={{headerShown:false}} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <DataProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Login">
+          <Stack.Screen name="Login" component={Login} options={{headerShown:false}} />
+          <Stack.Screen name="Main" component={Main} options={{headerShown:false}} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </DataProvider>
   );
 }

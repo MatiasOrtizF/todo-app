@@ -1,18 +1,22 @@
-import { ScrollView, TouchableOpacity, TouchableWithoutFeedback, Text, View, Image, ImageBackground, TextInput, Alert } from 'react-native';
-import { useEffect, useState } from 'react';
+import { TouchableOpacity, Text, View, TextInput } from 'react-native';
+import { useState } from 'react';
 import styles from '../components/Styles';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import LoginService from '../service/LoginService';
+import { useData } from '../hooks/dataContext';
 
 export default function Login () {
     const navigation = useNavigation();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+    const {setToken} = useData();
+
     const authenticationUser = () => {
         const userData = {email, password}
-        LoginService.login(userData).then(()=> {
+        LoginService.login(userData).then((response)=> {
+            setToken(response.data.token);
             navigation.navigate('Main')
         }).catch(error=> {
             if (error.response && error.response.status === 400) {
@@ -30,20 +34,20 @@ export default function Login () {
             <Text style={{color: "#787878"}}>Please sign in to continue.</Text>
             <View style={{marginVertical: 25}}>
                 <TextInput
-                    style={{backgroundColor: "#D4D4D4", color:"#787878", paddingHorizontal: 10, paddingVertical: 5, marginVertical: 10, shadowColor: '#000', elevation: 5, borderRadius: 8}}
+                    style={styles.inputText}
                     placeholder='email'
                     autoCapitalize='none'
                     onChangeText={setEmail}
                 />
                 <TextInput
-                    style={{backgroundColor: "#D4D4D4", color:"#787878", paddingHorizontal: 10, paddingVertical: 5, marginVertical: 10, shadowColor: '#000', elevation: 5, borderRadius: 8}}
+                    style={styles.inputText}
                     placeholder='password'
                     secureTextEntry={true}
                     autoCapitalize='none'
                     onChangeText={setPassword}
                 />
             </View>
-            <TouchableOpacity onPress={()=> authenticationUser()} style={{backgroundColor: "orange", alignSelf: 'flex-end', paddingVertical: 10, paddingHorizontal:25, borderRadius: 30}}>
+            <TouchableOpacity onPress={()=> authenticationUser()} style={styles.btn}>
                 <Text style={{color: "white"}}>LOGIN</Text>
             </TouchableOpacity>
         </View>

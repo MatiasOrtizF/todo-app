@@ -74,11 +74,15 @@ public class JWTUtil {
      * @return
      */
     public String getKey(String jwt) {
-        Claims claims = Jwts.parser().
-                setSigningKey(signingKey)
-                .parseClaimsJws(jwt)
-                .getBody();
+        try {
+            Claims claims = Jwts.parser().
+                    setSigningKey(signingKey)
+                    .parseClaimsJws(jwt)
+                    .getBody();
 
-        return claims.getId();
+            return claims.getId();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

@@ -8,8 +8,13 @@ import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import Modal from './Modal';
 import Todo from '../components/Todo'
+import { useNavigation } from '@react-navigation/native';
+import { useData } from '../hooks/dataContext';
 
 export default function Main () {
+    const {setToken} = useData();
+
+    const navigation = useNavigation();
     const [filter, setFilter] = useState("all");
     const [todos, setTodos] = useState([]);
     const [dataTodo, setDataTodo] = useState({
@@ -109,6 +114,11 @@ export default function Main () {
         }
     }
 
+    const logOut = () => {
+        setToken('')
+        navigation.navigate('Login')
+    }
+
     return(
         <BottomSheetModalProvider>
             <View style={styles.container}>
@@ -119,7 +129,7 @@ export default function Main () {
                         <View style={styles.header}>
                             <View style={{flexDirection:"row", justifyContent: "space-between", alignItems: "center"}}>
                                 <Text style={styles.headerText}>TODO</Text>
-                                <TouchableOpacity style={{backgroundColor: "#000", paddingVertical: 5, paddingHorizontal: 10 , borderRadius: 7}}>
+                                <TouchableOpacity onPress={()=> logOut()} style={{backgroundColor: "transparent", borderWidth: 3, paddingVertical: 5, paddingHorizontal: 10 , borderRadius: 100}}>
                                     <Text style={{color: "#fff", fontSize: 17, fontWeight: "bold"}}>Log Out</Text>
                                 </TouchableOpacity>
                             </View>

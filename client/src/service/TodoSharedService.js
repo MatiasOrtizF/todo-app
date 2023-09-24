@@ -1,25 +1,29 @@
 import axios from "axios";
+import { useData } from "../hooks/dataContext";
 
 const TODO_BASE = "http://192.168.0.9:8080/api/todo_shared";
 
+const {token} = useData();
+
+const config = {
+    headers: {
+        'Authorization': token,
+        'Content-Type': 'application/json'
+    }
+}
+
 class TodoSharedService {
-    getAllTodoShared() {//modificar para que solo muestre en login el usuario
+    getAllTodoShared() {
         return axios.get(TODO_BASE);
     }
-    getTodoShared(todoId) {
-        return axios.get(TODO_BASE + "/" + todoId);
-    }
     addTodoShared(todoData) {
-        return axios.post(TODO_BASE, todoData);
+        return axios.post(TODO_BASE, todoData, config);
     }
-    /*updateTodoShared(todoId, todoData) {
-        return axios.put(TODO_BASE + "/" + todoId, todoData)
-    }*/
     deleteTodoShared(todoId, todoData) {
-        return axios.delete(TODO_BASE + "/" + todoId, todoData)
+        return axios.delete(TODO_BASE + "/" + todoId, todoData, config)
     }
     getTodoInShared(todoId) {
-        return axios.get("http://192.168.0.9:8080/api/todo_in_shared" + "/" + todoId)
+        return axios.get("http://192.168.0.9:8080/api/todo_in_shared" + "/" + todoId, config)
     }
 }
 

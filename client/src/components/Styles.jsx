@@ -84,6 +84,23 @@ const styles = StyleSheet.create({
         flex:1,
         justifyContent: "center",
         padding: 35
+    },
+    inputText: {
+        backgroundColor: "#D4D4D4", 
+        color:"#787878", 
+        paddingHorizontal: 10, 
+        paddingVertical: 5, 
+        marginVertical: 10, 
+        shadowColor: '#000', 
+        elevation: 5, 
+        borderRadius: 8
+    },
+    btn: {
+        backgroundColor: "orange", 
+        alignSelf: 'flex-end', 
+        paddingVertical: 10, 
+        paddingHorizontal:25, 
+        borderRadius: 30
     }
 });
 

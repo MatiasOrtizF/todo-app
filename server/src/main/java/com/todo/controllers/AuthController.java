@@ -22,6 +22,7 @@ public class AuthController {
     @Autowired
     private JWTUtil jwtUtil;
 
+
     @PostMapping("api/login")
     public ResponseEntity<?> login(@RequestBody User user) {
         List<User> list = userRepository.findByEmail(user.getEmail());
@@ -32,13 +33,13 @@ public class AuthController {
 
             Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
             if(argon2.verify(passwordHashed, user.getPassword())) {
-                String tokenJwt = jwtUtil.create(userLogged.getId().toString(), userLogged.getEmail());
+                    String tokenJwt = jwtUtil.create(userLogged.getId().toString(), userLogged.getEmail());
 
-                LoginResponse response = new LoginResponse();
-                response.setToken(tokenJwt);
-                response.setUser(userLogged);
+                    LoginResponse response = new LoginResponse();
+                    response.setToken(tokenJwt);
+                    response.setUser(userLogged);
 
-                return ResponseEntity.ok(response);
+                    return ResponseEntity.ok(response);
             }
         }
         return ResponseEntity.badRequest().body("Email or password is incorrect");
