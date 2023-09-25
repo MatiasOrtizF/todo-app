@@ -3,6 +3,7 @@ package com.todo.controllers;
 import com.todo.models.LoginResponse;
 import com.todo.models.User;
 import com.todo.repository.UserRepository;
+import com.todo.services.AuthService;
 import com.todo.utils.JWTUtil;
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
@@ -22,10 +23,17 @@ public class AuthController {
     @Autowired
     private JWTUtil jwtUtil;
 
+    private final AuthService authService;
+
+    @Autowired
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
 
     @PostMapping("api/login")
     public ResponseEntity<?> login(@RequestBody User user) {
-        List<User> list = userRepository.findByEmail(user.getEmail());
+        List<User> list = authService.validationEmail(user.getEmail());
 
         if(!list.isEmpty()) {
             User userLogged = list.get(0);

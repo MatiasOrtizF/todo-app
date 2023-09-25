@@ -4,25 +4,19 @@ import styles from './Styles';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import Modal from './Modal';
 
-export default function Todo ({ todo, deleteTodo, handleSnapPress, complet }) {
+export default function Todo ({ todo, deleteTodo, updateTodo }) {
     const bottomSheetModalRef = useRef(null);
-    const sharedBottomSheetRef = useRef(null);
     const snapPoints = ["25%", "48%", "75%"];
-    const snapPointsShared = ["40%"];
 
     function handlePresentModal() {
         bottomSheetModalRef.current?.present();
-    }
-
-    function handlePresentShared() {
-        sharedBottomSheetRef.current?.present();
     }
 
     return(
         <>
             <View style={styles.list}>
                 <View style={{flexDirection:"row" , flex:0.85 , marginRight:"5%"}}>
-                    <TouchableOpacity onPress={()=> complet(todo.id)}>
+                    <TouchableOpacity onPress={()=> updateTodo(todo.id)}>
                         {todo.completed ? 
                             <Image source={require('../images/check.png')}
                                 style={[styles.img, {marginRight:5}]} 
@@ -39,7 +33,6 @@ export default function Todo ({ todo, deleteTodo, handleSnapPress, complet }) {
                 </View>
                 <View style={{flex:0.15, flexDirection: "row"}}>
                     {/* agregar una alerta para eliminar */}
-                    {/* <TouchableOpacity onPress={()=> handleSnapPress(0, todo)}> */}
                     <TouchableOpacity onPress={handlePresentModal}>
                         <Image source={require('../images/add-user.png')}
                             style={styles.img}

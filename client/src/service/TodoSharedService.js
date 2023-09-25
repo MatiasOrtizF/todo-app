@@ -1,26 +1,38 @@
 import axios from "axios";
-import { useData } from "../hooks/dataContext";
 
 const TODO_BASE = "http://192.168.0.9:8080/api/todo_shared";
 
-const {token} = useData();
-
-const config = {
-    headers: {
-        'Authorization': token,
-        'Content-Type': 'application/json'
-    }
-}
-
 class TodoSharedService {
-    addTodoShared(todoData) {
-        return axios.post(TODO_BASE, todoData, config);
+    addTodoShared(email, todoData, token) {
+        const config = {
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            }
+        }
+        return axios.post(TODO_BASE + "?userEmail=" + email, todoData, config);
     }
-    deleteTodoShared(todoId, todoData) {
-        return axios.delete(TODO_BASE + "/" + todoId, todoData, config)
+    deleteTodoShared(todoId, userId, token) {
+        const config = {
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            },
+            params: {
+                userId: userId,
+                todoId: todoId
+            }
+        }
+        return axios.delete(TODO_BASE, config)
     }
-    getTodoInShared(todoId) {
-        return axios.get("http://192.168.0.9:8080/api/todo_in_shared" + "/" + todoId, config)
+    getTodoInShared(todoId, token) {
+        const config = {
+            headers: {
+                'Authorization': token,
+                'Content-Type': 'application/json'
+            }
+        }
+        return axios.get(TODO_BASE + "/all/" + todoId, config)
     }
 }
 

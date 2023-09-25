@@ -2,6 +2,7 @@ package com.todo.controllers;
 
 import com.todo.models.Todo;
 import com.todo.services.TodoService;
+import com.todo.services.TodoSharedService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -62,6 +63,17 @@ public class TodoController {
     public ResponseEntity<?> deleteTodo(@PathVariable Long id, @RequestHeader(value="Authorization")String token) {
         boolean deleted = todoService.deleteTodo(id, token);
         if(deleted) {
+            Map<String,Boolean> response = new HashMap<>();
+            response.put("deleted",Boolean.TRUE);
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body("Unauthorized: Invalid token");
+    }
+
+    @DeleteMapping("/completed")
+    public ResponseEntity<?> deleteCompletedTodos(@RequestHeader(value="Authorization")String token) {
+        boolean deletedCompleted = todoService.deleteCompletedTodos(token);
+        if(deletedCompleted) {
             Map<String,Boolean> response = new HashMap<>();
             response.put("deleted",Boolean.TRUE);
             return ResponseEntity.ok(response);

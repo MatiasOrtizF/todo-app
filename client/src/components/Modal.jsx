@@ -2,8 +2,12 @@ import { useEffect, useState } from 'react';
 import { Text, View, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import TodoSharedService from '../service/TodoSharedService';
 import AuthService from '../service/AuthService';
+import { useData } from '../hooks/dataContext';
+import { TouchableHighlight } from 'react-native-gesture-handler';
 
 export default function Modal ({todo}) {
+    const {token} = useData();
+
     const [email, setEmail] = useState("");
     const [users, setUsers] = useState([]);
     useEffect(()=> {
@@ -11,15 +15,19 @@ export default function Modal ({todo}) {
     },[])
 
     const listUsers = () => {
-        TodoSharedService.getTodoInShared(todo.id).then(response=> {
-            const usersNames = response.data.map((data)=> data.name).filter(Boolean);
+        TodoSharedService.getTodoInShared(todo.id, token).then(response=> {
+            console.log(response.data);
+            const usersNames = response.data.map(data=> ({
+                id: data.id,
+                userName: data.name
+            }));
             setUsers(usersNames);
         }).catch(error=> {
             console.log(error);
         })
     }
 
-    const checkUser = () => {
+    /*const checkUser = () => {
         AuthService.checkUser(email).then(response=> {
             if(response.data) {
                 Alert.alert("The user was added successfully")
@@ -29,6 +37,30 @@ export default function Modal ({todo}) {
                 Alert.alert("Email is incorrect")
             }
         })
+    }*/
+
+    const addTodoShared = () => {
+        TodoSharedService.addTodoShared(email, todo, token).then(response=> {
+            listUsers();
+        }).catch(error=> {
+            console.log(error);
+        })
+    }
+
+    const deleteUserFromShared = (userId) => {
+        Alert.alert('Delete user', 'Are you sure you want to delete user from shared ?', [
+            {text: 'cancel'},
+            {
+                text: 'Yes',
+                onPress: () => {
+                    TodoSharedService.deleteTodoShared(todo.id, userId, token).then(response=> {
+                        listUsers();
+                    }).catch(error=> {  
+                        console.log(error);
+                    })
+                }
+            }
+        ])
     }
 
     return(
@@ -44,13 +76,16 @@ export default function Modal ({todo}) {
                     onChangeText={setEmail}
                 />
             </View>
-            <TouchableOpacity onPress={()=> checkUser()} style={{marginVertical: 10}}>
+            <TouchableOpacity onPress={()=> addTodoShared()} style={{marginVertical: 10}}>
                 <Text style={[styles.fontSizeText, {fontWeight: 600, color: email.length > 0 ?  "blue" : "#D4D4D4"}]}>Share</Text>
             </TouchableOpacity>
             <Text style={[styles.title, {fontWeight: "800", marginTop: 15, marginBottom: 5}]}>Participants:</Text>
             <View style={{flexDirection:"row"}}>
+                    <Text style={[styles.text, styles.button, {backgroundColor: "green"}]}>You</Text>
                 {users.map((user, index)=>(
-                    <Text key={index} style={[styles.text, {backgroundColor: "red"}]}>{user}</Text>
+                    <TouchableHighlight style={[styles.button, {backgroundColor: "red"}]} key={index} onLongPress={()=>deleteUserFromShared(user.id)}>
+                        <Text style={[styles.text,]}>{user.userName}</Text>
+                    </TouchableHighlight>
                 ))}
             </View>
         </View>
@@ -68,9 +103,12 @@ const styles = StyleSheet.create({
     text: {
         fontWeight: "700",
         color: "#fff",
+    },
+    button: {
         paddingHorizontal: 10, 
         paddingVertical:5, 
         borderRadius: 15, 
-        marginTop: 2
+        marginTop: 2,
+        marginHorizontal: 3
     }
 })

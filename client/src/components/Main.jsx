@@ -4,15 +4,13 @@ import styles from './Styles';
 import Filter from './Filter';
 import TodoService from '../service/TodoService';
 import { StatusBar } from 'expo-status-bar';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import Modal from './Modal';
 import Todo from '../components/Todo'
 import { useNavigation } from '@react-navigation/native';
 import { useData } from '../hooks/dataContext';
 
 export default function Main () {
-    const {setToken} = useData();
+    const {setToken, token, userId} = useData();
 
     const navigation = useNavigation();
     const [filter, setFilter] = useState("all");
@@ -21,7 +19,7 @@ export default function Main () {
         task: "",
         completed: false,
         user: {
-            id: 1
+            id: userId
         }
     })
     const [todoModal, setTodoModal] = useState([]);
@@ -55,7 +53,7 @@ export default function Main () {
     }
 
     const listTodos = () => {
-        TodoService.getAllTodo().then(response=> {
+        TodoService.getAllTodo(token).then(response=> {
             setTodos(response.data);
         }).catch(error=> {
             console.log(error);
@@ -73,16 +71,28 @@ export default function Main () {
     const filteredTodo = filtersTodos(todos);
 
     const clearCompleted = () => {
-        console.log("clear complete")
-    }
-
-    const deleteTodo = (todoId) => {
-        Alert.alert('delete todo', 'Are you sure you want to deleted this todo?',[
-            { text:'cancel' },
+        Alert.alert('Delete completed Todos', 'Are you sure you want to deleted all the completed todos?', [
+            { text: 'cancel' },
             {
                 text: 'yes',
                 onPress: ()=> {
-                    TodoService.deleteTodo(todoId).then(response=> {
+                    TodoService.deleteCompletedTodos(token).then(response=> {
+                        listTodos();
+                    }).catch(error=> {
+                        console.log(error);
+                    })
+                }
+            }
+        ]);
+    }
+
+    const deleteTodo = (todoId) => {
+        Alert.alert('Delete todo', 'Are you sure you want to deleted this todo?',[
+            { text: 'cancel' },
+            {
+                text: 'yes',
+                onPress: ()=> {
+                    TodoService.deleteTodo(todoId, token).then(response=> {
                         listTodos();
                     }).catch(error=> {
                         console.log(error);
@@ -96,8 +106,8 @@ export default function Main () {
         setDataTodo({...dataTodo, [task]: value})
     }
 
-    const complet = (todoId) => {
-        TodoService.updateTodo(todoId).then(response=> {
+    const updateTodo = (todoId) => {
+        TodoService.updateTodo(todoId, token).then(response=> {
             listTodos();
         }).catch(error=> {
             console.log(error);
@@ -106,7 +116,7 @@ export default function Main () {
 
     const addTodo = () => {
         if(dataTodo.task.trim()) {
-            TodoService.addTodo(dataTodo).then(response=> {
+            TodoService.addTodo(dataTodo, token).then(response=> {
                 listTodos();
             }).catch(error=> {
                 console.log(error)
@@ -150,7 +160,7 @@ export default function Main () {
                                 </View>
                             :
                                 filteredTodo?.map((todo, index)=> (
-                                    <Todo key={index} todo={todo} deleteTodo={deleteTodo} handleSnapPress={handleSnapPress} complet={complet} />
+                                    <Todo key={index} todo={todo} deleteTodo={deleteTodo} updateTodo={updateTodo}/>
                                 ))
                             }
                             <View style={styles.list}>
@@ -166,17 +176,6 @@ export default function Main () {
                         <Filter changeFilter={setFilter}/>
                     </View>
                 </ScrollView>
-                {/* <BottomSheet
-                    ref={sheetRef}
-                    snapPoints={snapPoints}
-                    enablePanDownToClose={true}
-                    // onClose={()=> setIsOpen(false)}
-                    backgroundStyle={{ borderRadius: 50, borderWidth: 4 }}
-                >
-                    <BottomSheetView>
-                        <Modal todoModal={todoModal}/>
-                    </BottomSheetView>
-                </BottomSheet> */}
             </View>
         </BottomSheetModalProvider>
     )

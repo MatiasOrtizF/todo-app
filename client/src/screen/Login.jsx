@@ -11,12 +11,13 @@ export default function Login () {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const {setToken} = useData();
+    const {setToken, setUserId} = useData();
 
     const authenticationUser = () => {
         const userData = {email, password}
         LoginService.login(userData).then((response)=> {
             setToken(response.data.token);
+            setUserId(response.data.user.id);
             navigation.navigate('Main')
         }).catch(error=> {
             if (error.response && error.response.status === 400) {
