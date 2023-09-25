@@ -42,8 +42,13 @@ export default function Modal ({todo}) {
     const addTodoShared = () => {
         TodoSharedService.addTodoShared(email, todo, token).then(response=> {
             listUsers();
+            setEmail("");
         }).catch(error=> {
-            console.log(error);
+            if (error.response && error.response.status === 400) {
+                alert(error.response.data);
+            } else {
+                console.log(error);
+            }
         })
     }
 
@@ -73,6 +78,7 @@ export default function Modal ({todo}) {
                     style={{backgroundColor: "#D4D4D4", color:"black", paddingHorizontal: 10, paddingVertical: 5, marginVertical: 10, shadowColor: '#000', elevation: 5, borderRadius: 8}}
                     placeholder='Enter your contact email'
                     autoCapitalize='none'
+                    value={email}
                     onChangeText={setEmail}
                 />
             </View>

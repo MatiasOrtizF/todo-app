@@ -2,6 +2,7 @@ package com.todo.controllers;
 
 import com.todo.exception.ResourceNotFoundExpection;
 import com.todo.exception.UnauthorizedException;
+import com.todo.exception.UserAlreadyRegisteredException;
 import com.todo.models.Todo;
 import com.todo.models.TodoShared;
 import com.todo.models.User;
@@ -33,7 +34,9 @@ public class TodoSharedController {
         try {
             TodoShared addedTodoShared = todoSharedService.addTodoShared(userEmail, todo, token);
             return ResponseEntity.ok(addedTodoShared);
-        } catch (ResourceNotFoundExpection e) {
+        } catch (UserAlreadyRegisteredException e) {
+            return ResponseEntity.badRequest().body("The user is already registered");
+        }catch (ResourceNotFoundExpection e) {
             return ResponseEntity.badRequest().body("The user with this email: " + userEmail + " does not exist");
         } catch (UnauthorizedException e) {
             return ResponseEntity.badRequest().body("Unauthorized: Invalid token");

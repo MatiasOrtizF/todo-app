@@ -2,10 +2,12 @@ package com.todo.services;
 
 import com.todo.exception.ResourceNotFoundExpection;
 import com.todo.exception.UnauthorizedException;
+import com.todo.exception.UserAlreadyRegisteredException;
 import com.todo.models.Todo;
 import com.todo.models.TodoShared;
 import com.todo.models.User;
 import com.todo.repository.TodoSharedRepository;
+import com.todo.repository.UserRepository;
 import com.todo.utils.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,22 +21,28 @@ public class TodoSharedService {
     private final JWTUtil jwtUtil;
     private final AuthService authService;
 
+    private final UserRepository userRepository;
+
     @Autowired
-    public TodoSharedService(TodoSharedRepository todoSharedRepository, JWTUtil jwtUtil, AuthService authService) {
+    public TodoSharedService(TodoSharedRepository todoSharedRepository, JWTUtil jwtUtil, AuthService authService, UserRepository userRepository) {
         this.todoSharedRepository = todoSharedRepository;
         this.jwtUtil = jwtUtil;
         this.authService = authService;
+        this.userRepository = userRepository;
     }
 
     public TodoShared addTodoShared(String userEmail, Todo todo, String token) {
         if(authService.validationToken(token)) {
             List<User> list = authService.validationEmail(userEmail);
             if(!list.isEmpty()) {
-                TodoShared todoShared = new TodoShared();
                 User user = list.get(0);
-                todoShared.setTodo(todo);
-                todoShared.setUser(user);
-                return todoSharedRepository.save(todoShared);
+                List <TodoShared> existingTodoShared = todoSharedRepository.findByTodoIdAndUserId(todo.getId(), user.getId());
+                if(existingTodoShared.isEmpty()) {
+                        TodoShared todoShared = new TodoShared();
+                        todoShared.setTodo(todo);
+                        todoShared.setUser(user);
+                        return todoSharedRepository.save(todoShared);
+                    } throw new UserAlreadyRegisteredException("The user is already registered");
             } throw new ResourceNotFoundExpection("The user with this email: " + userEmail + " does not exist");
         } throw new UnauthorizedException("Unauthorized: Invalid token");
     }

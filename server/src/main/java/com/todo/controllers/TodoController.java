@@ -80,5 +80,4 @@ public class TodoController {
         }
         return ResponseEntity.badRequest().body("Unauthorized: Invalid token");
     }
-    
 }
