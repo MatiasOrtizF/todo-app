@@ -3,11 +3,11 @@ package com.todo.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(value = HttpStatus.CONFLICT)
-public class UserAlreadyRegisteredException extends RuntimeException {
+@ResponseStatus(value = HttpStatus.FORBIDDEN)
+public class UserMismatchException extends RuntimeException {
     private static final Long serialVersionUID = 1L;
 
-    public UserAlreadyRegisteredException(String message) {
+    public UserMismatchException(String message) {
         super(message);
     }
 }

@@ -33,9 +33,8 @@ public class TodoSharedService {
 
     public TodoShared addTodoShared(String userEmail, Todo todo, String token) {
         if(authService.validationToken(token)) {
-            List<User> list = authService.validationEmail(userEmail);
-            if(!list.isEmpty()) {
-                User user = list.get(0);
+            User user = authService.validationEmail(userEmail);
+            if(user != null) {
                 List <TodoShared> existingTodoShared = todoSharedRepository.findByTodoIdAndUserId(todo.getId(), user.getId());
                 if(existingTodoShared.isEmpty()) {
                         TodoShared todoShared = new TodoShared();
@@ -50,8 +49,8 @@ public class TodoSharedService {
     public TodoShared getTodoShared(Long id, String token) {
         if(authService.validationToken(token)) {
             return todoSharedRepository.findById(id)
-                    .orElseThrow(()-> new ResourceNotFoundExpection("The user with this id:" + id + "is incorrect"));
-        } return null;
+                    .orElseThrow(()-> new ResourceNotFoundExpection("The todo shared with this id:" + id + "is incorrect"));
+        } throw new UnauthorizedException("Unauthorized: invalid token");
     }
 
     public boolean deleteTodoShared(Long id, String token) {
@@ -77,10 +76,9 @@ public class TodoSharedService {
         throw new UnauthorizedException("Unauthorized: Invalid token");
     }
 
-    public List<User> getTodoInShared(Long todoId, String token) {
+    public TodoShared getTodoInShared(Long todoId, String token) {
         if(authService.validationToken(token)) {
-            List<User> list = todoSharedRepository.findByTodoId(todoId);
-            return list;
+            return todoSharedRepository.findByTodoId(todoId);
         } return null;
     }
 

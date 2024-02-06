@@ -35,21 +35,23 @@ public class TodoSharedController {
             TodoShared addedTodoShared = todoSharedService.addTodoShared(userEmail, todo, token);
             return ResponseEntity.ok(addedTodoShared);
         } catch (UserAlreadyRegisteredException e) {
-            return ResponseEntity.badRequest().body("The user is already registered");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("The user is already registered");
         }catch (ResourceNotFoundExpection e) {
-            return ResponseEntity.badRequest().body("The user with this email: " + userEmail + " does not exist");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The user with this email: " + userEmail + " does not exist");
         } catch (UnauthorizedException e) {
-            return ResponseEntity.badRequest().body("Unauthorized: Invalid token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: invalid token");
         }
     }
 
     @GetMapping("{id}")
     public ResponseEntity<?> getTodoShared (@PathVariable Long id, @RequestHeader(value="Authorization")String token) {
-        TodoShared todoShared = todoSharedService.getTodoShared(id, token);
-        if(todoShared != null) {
-            return ResponseEntity.ok(todoShared);
+        try {
+            return ResponseEntity.ok(todoSharedService.getTodoInShared(id, token));
+        } catch (ResourceNotFoundExpection e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The todo shared does not exist");
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: invalid token");
         }
-        return ResponseEntity.badRequest().body("Unauthorized: Invalid token");
     }
 
     @DeleteMapping
@@ -58,17 +60,18 @@ public class TodoSharedController {
             todoSharedService.deleteTodoSharedByUserAndTodo(userId, todoId, token);
             return ResponseEntity.ok().build();
         } catch (ResourceNotFoundExpection e) {
-            return ResponseEntity.badRequest().body("The user with this id: " + userId + " and this: "+ todoId + " does not exist");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The user with this id: " + userId + " and this: "+ todoId + " does not exist");
         } catch (UnauthorizedException e) {
-            return ResponseEntity.badRequest().body("Unauthorized: Invalid token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: invalid token");
         }
     }
 
-    @GetMapping("all/{todoId}")
+    /*
+    @GetMapping("allUsers/{todoId}")
     public ResponseEntity<?> getTodoInShared (@PathVariable Long todoId, @RequestHeader(value="Authorization")String token) {
         List<User> list = todoSharedService.getTodoInShared(todoId, token);
         if(list != null) {
             return ResponseEntity.ok(list);
         } return ResponseEntity.badRequest().body("Unauthorized: Invalid token");
-    }
+    }*/
 }

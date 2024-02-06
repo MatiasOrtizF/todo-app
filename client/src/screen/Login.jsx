@@ -15,6 +15,7 @@ export default function Login () {
 
     const authenticationUser = () => {
         const userData = {email, password}
+        console.log(userData);
         LoginService.login(userData).then((response)=> {
             setToken(response.data.token);
             setUserId(response.data.user.id);

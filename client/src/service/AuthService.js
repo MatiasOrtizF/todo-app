@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const TODO_BASE = "http://192.168.0.9:8080/api/check_user";
+const TODO_BASE = "http://192.168.0.16:8080/api/check_user";
 
 class AuthService {
     checkUser(email) {

@@ -1,5 +1,6 @@
 package com.todo.controllers;
 
+import com.todo.exception.InvalidCredentialsException;
 import com.todo.models.LoginResponse;
 import com.todo.models.User;
 import com.todo.repository.UserRepository;
@@ -17,45 +18,36 @@ import java.util.List;
 @CrossOrigin(origins = {"http://localhost:19006/", "192.168.0.9:8081"})
 @RestController
 public class AuthController {
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private JWTUtil jwtUtil;
+    private final UserRepository userRepository;
+
+    private final JWTUtil jwtUtil;
 
     private final AuthService authService;
 
     @Autowired
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, UserRepository userRepository, JWTUtil jwtUtil) {
         this.authService = authService;
+        this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
     }
-
 
     @PostMapping("api/login")
     public ResponseEntity<?> login(@RequestBody User user) {
-        List<User> list = authService.validationEmail(user.getEmail());
-
-        if(!list.isEmpty()) {
-            User userLogged = list.get(0);
-            String passwordHashed = userLogged.getPassword();
-
-            Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
-            if(argon2.verify(passwordHashed, user.getPassword())) {
-                    String tokenJwt = jwtUtil.create(userLogged.getId().toString(), userLogged.getEmail());
-
-                    LoginResponse response = new LoginResponse();
-                    response.setToken(tokenJwt);
-                    response.setUser(userLogged);
-
-                    return ResponseEntity.ok(response);
-            }
+        try {
+            return ResponseEntity.ok(authService.validationCredentials(user));
+        } catch (InvalidCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("An error occurred during login");
         }
-        return ResponseEntity.badRequest().body("Email or password is incorrect");
     }
 
+    /*
+    --> Ver esto:
     @PostMapping("api/check_user")
     public boolean checkUser(@RequestParam("email")String email) {
         List<User> list = userRepository.findByEmail(email);
         return(!list.isEmpty());
-    }
+    }*/
 }
