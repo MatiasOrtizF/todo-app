@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const TODO_BASE = "http://192.168.0.16:8080/api/todo_shared";
+const TODO_BASE = "http://192.168.0.6:8080/api/todo_shared";
 
 class TodoSharedService {
     addTodoShared(email, todoData, token) {

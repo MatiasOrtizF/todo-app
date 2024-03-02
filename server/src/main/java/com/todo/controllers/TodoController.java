@@ -85,12 +85,10 @@ public class TodoController {
 
     @DeleteMapping("/completed")
     public ResponseEntity<?> deleteCompletedTodos(@RequestHeader(value="Authorization")String token) {
-        boolean deletedCompleted = todoService.deleteCompletedTodos(token);
-        if(deletedCompleted) {
-            Map<String,Boolean> response = new HashMap<>();
-            response.put("deleted",Boolean.TRUE);
-            return ResponseEntity.ok(response);
+        try {
+            return ResponseEntity.ok(todoService.deleteCompletedTodos(token));
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: invalid token");
         }
-        return ResponseEntity.badRequest().body("Unauthorized: Invalid token");
     }
 }

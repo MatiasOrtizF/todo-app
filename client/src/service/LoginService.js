@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const TODO_BASE = "http://192.168.0.16:8080/api/login";
+const TODO_BASE = "http://192.168.0.6:8080/api/login";
 
 class LoginService {
     login(userData) {

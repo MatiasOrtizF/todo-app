@@ -32,7 +32,7 @@ public class AuthService {
         return userRepository.findByEmail(email);
     }
 
-    public String validationCredentials (User user) {
+    public LoginResponse validationCredentials (User user) {
         User userLogged = validationEmail(user.getEmail());
         if(userLogged != null) {
             String passwordHashed = userLogged.getPassword();
@@ -41,7 +41,12 @@ public class AuthService {
             if(argon2.verify(passwordHashed, user.getPassword())) {
                 userLogged.setPassword("");
                 String tokenJWT = jwtUtil.create(userLogged.getId().toString(), userLogged.getEmail());
-                return tokenJWT;
+
+                LoginResponse loginResponse = new LoginResponse();
+                loginResponse.setToken(tokenJWT);
+                loginResponse.setUser(userLogged);
+
+                return loginResponse;
             }
         } throw new InvalidCredentialsException("Invalid email or password");
     }

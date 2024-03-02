@@ -1,6 +1,8 @@
 package com.todo.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
@@ -9,7 +11,7 @@ import lombok.Data;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private Long id;
 
     @Column(name = "name")
@@ -18,9 +20,12 @@ public class User {
     @Column(name = "last_name")
     private String lastName;
 
+    @NotBlank(message = "email is mandatory")
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password")
+    @NotBlank(message = "password is mandatory")
+    @Column(name = "password", nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 }

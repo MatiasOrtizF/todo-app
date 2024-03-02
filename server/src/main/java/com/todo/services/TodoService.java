@@ -85,11 +85,10 @@ public class TodoService {
     }
 
     public boolean deleteCompletedTodos(String token) {
-        String userId = jwtUtil.getKey(token);
         if(authService.validationToken(token)) {
+            String userId = jwtUtil.getKey(token);
             todoRepository.deleteCompletedTodosByUserId(Long.valueOf(userId));
             return true;
-        }
-        return false;
+        } throw new UnauthorizedException("Unauthorized: invalid token");
     }
 }
