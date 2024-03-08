@@ -41,7 +41,7 @@ public class TodoSharedService {
                         todoShared.setTodo(todo);
                         todoShared.setUser(user);
                         return todoSharedRepository.save(todoShared);
-                    } throw new UserAlreadyRegisteredException("The user is already registered");
+                    } throw new UserAlreadyRegisteredException("The user is already registered in this todo");
             } throw new ResourceNotFoundExpection("The user with this email: " + userEmail + " does not exist");
         } throw new UnauthorizedException("Unauthorized: Invalid token");
     }
@@ -76,10 +76,13 @@ public class TodoSharedService {
         throw new UnauthorizedException("Unauthorized: Invalid token");
     }
 
-    public TodoShared getTodoInShared(Long todoId, String token) {
+    public List<User> getTodoInShared(Long todoId, String token) {
         if(authService.validationToken(token)) {
-            return todoSharedRepository.findByTodoId(todoId);
-        } return null;
+            List<User> userList = todoSharedRepository.findUsersByTodoId(todoId);
+            if(userList != null) {
+                return userList;
+            } throw new ResourceNotFoundExpection("The todo shared with this id:" + todoId + "is incorrect");
+        } throw new UnauthorizedException("Unauthorized: Invalid token");
     }
 
     public List<TodoShared> searchTodoInShared(Long id) {

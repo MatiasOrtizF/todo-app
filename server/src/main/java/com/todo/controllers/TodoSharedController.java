@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = {"http://localhost:19006/", "192.168.0.9:8081"})
+@CrossOrigin(origins = {"*"})
 @RequestMapping("/api/todo_shared")
 @RestController
 public class TodoSharedController {
@@ -35,7 +35,7 @@ public class TodoSharedController {
             TodoShared addedTodoShared = todoSharedService.addTodoShared(userEmail, todo, token);
             return ResponseEntity.ok(addedTodoShared);
         } catch (UserAlreadyRegisteredException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("The user is already registered");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("The user is already registered in this todo");
         }catch (ResourceNotFoundExpection e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The user with this email: " + userEmail + " does not exist");
         } catch (UnauthorizedException e) {
@@ -66,9 +66,15 @@ public class TodoSharedController {
         }
     }
 
-    /*
-    @GetMapping("allUsers/{todoId}")
+    /*@GetMapping("allUsers/{todoId}")
     public ResponseEntity<?> getTodoInShared (@PathVariable Long todoId, @RequestHeader(value="Authorization")String token) {
+        try {
+            return ResponseEntity.ok(todoSharedService.getTodoInShared(todoId, token));
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: invalid token");
+        }
+
+
         List<User> list = todoSharedService.getTodoInShared(todoId, token);
         if(list != null) {
             return ResponseEntity.ok(list);

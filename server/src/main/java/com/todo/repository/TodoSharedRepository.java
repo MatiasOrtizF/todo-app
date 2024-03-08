@@ -17,6 +17,9 @@ public interface TodoSharedRepository extends JpaRepository<TodoShared, Long> {
     @Query("SELECT t FROM TodoShared t WHERE t.todo.id = :todoId")
     TodoShared findByTodoId(@Param("todoId")Long todoId);
 
+    @Query("SELECT t.user FROM TodoShared t WHERE t.todo.id = :todoId")
+    List<User> findUsersByTodoId(@Param("todoId")Long todoId);
+
     @Query("SELECT t FROM TodoShared t WHERE t.todo.id = :todoId")
     List<TodoShared> searchFindByTodoId(@Param("todoId")Long todoId);
 
