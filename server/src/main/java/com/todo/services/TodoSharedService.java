@@ -6,6 +6,7 @@ import com.todo.exception.UserAlreadyRegisteredException;
 import com.todo.models.Todo;
 import com.todo.models.TodoShared;
 import com.todo.models.User;
+import com.todo.repository.TodoRepository;
 import com.todo.repository.TodoSharedRepository;
 import com.todo.repository.UserRepository;
 import com.todo.utils.JWTUtil;
@@ -18,23 +19,22 @@ import java.util.List;
 @Service
 public class TodoSharedService {
     private final TodoSharedRepository todoSharedRepository;
-    private final JWTUtil jwtUtil;
+    private final TodoRepository todoRepository;
     private final AuthService authService;
 
-    private final UserRepository userRepository;
-
     @Autowired
-    public TodoSharedService(TodoSharedRepository todoSharedRepository, JWTUtil jwtUtil, AuthService authService, UserRepository userRepository) {
+    public TodoSharedService(TodoSharedRepository todoSharedRepository, TodoRepository todoRepository, AuthService authService) {
         this.todoSharedRepository = todoSharedRepository;
-        this.jwtUtil = jwtUtil;
+        this.todoRepository = todoRepository;
         this.authService = authService;
-        this.userRepository = userRepository;
     }
 
-    public TodoShared addTodoShared(String userEmail, Todo todo, String token) {
+    public TodoShared addTodoShared(Long id, String userEmail, String token) {
         if(authService.validationToken(token)) {
             User user = authService.validationEmail(userEmail);
             if(user != null) {
+                Todo todo = todoRepository.findById(id)
+                        .orElseThrow(()-> new ResourceNotFoundExpection("The todo with this id:" + id + "is incorrect"));
                 List <TodoShared> existingTodoShared = todoSharedRepository.findByTodoIdAndUserId(todo.getId(), user.getId());
                 if(existingTodoShared.isEmpty()) {
                         TodoShared todoShared = new TodoShared();

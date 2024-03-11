@@ -29,15 +29,15 @@ public class TodoSharedController {
     }
 
 
-    @PostMapping
-    public ResponseEntity<?> addTodoShared(@RequestParam String userEmail, @RequestBody Todo todo, @RequestHeader(value="Authorization")String token) {
+    @PostMapping("{id}")
+    public ResponseEntity<?> addTodoShared(@PathVariable Long id, @RequestParam String userEmail, @RequestHeader(value="Authorization")String token) {
         try {
-            TodoShared addedTodoShared = todoSharedService.addTodoShared(userEmail, todo, token);
+            TodoShared addedTodoShared = todoSharedService.addTodoShared(id, userEmail, token);
             return ResponseEntity.ok(addedTodoShared);
         } catch (UserAlreadyRegisteredException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("The user is already registered in this todo");
         }catch (ResourceNotFoundExpection e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The user with this email: " + userEmail + " does not exist");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The todo with this id:" + id + " is incorrect");
         } catch (UnauthorizedException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized: invalid token");
         }
